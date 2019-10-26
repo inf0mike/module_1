@@ -28,13 +28,17 @@ class MemberRepoImpl(object):
             members.append(member)
         return members
 
-    def store_member(self, member: Member):
+    def store_member(self, member: Member) -> None:
+        # store_member will insert a member record into data table, if
+        # there is an existing record, it will remove it before the new insert
+        # thus negating the need for an update method
         query = Query()
         # build the data structure to store
         record = {
             "member_id": member.id,
             "data": jsonpickle.encode(member)
         }
+
         # Remove any existing entry
         removed_ids = self._db.remove(query.member_id == member.id)
         if len(removed_ids) > 0:
@@ -48,6 +52,6 @@ class MemberRepoImpl(object):
             if isinstance(member, Member):
                 self.store_member(member)
 
-    def delete_member(self, member: Member):
+    def delete_member(self, member: Member) -> None:
         query = Query()
         self._db.remove(query.member_id == member.id)

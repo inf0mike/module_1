@@ -76,7 +76,8 @@ class MainUI(wx.Frame):
         self.lst_members.InsertColumn(0, "Membership ID", width=150)
         self.lst_members.InsertColumn(1, "First Name", width=150)
         self.lst_members.InsertColumn(2, "Last Name", width=150)
-        self.lst_members.InsertColumn(3, "Membership Level", width=-1)
+        self.lst_members.InsertColumn(3, "Membership Level", width=150)
+        self.list_dict = {}
 
         # Events
         self.btn_find.Bind(wx.EVT_BUTTON, self.find_member)
@@ -96,13 +97,20 @@ class MainUI(wx.Frame):
 
     def add_member(self, event):
         dialog = MemberDialog(self, self._manager)
+        print("[MainUI]: New member")
         dialog_result = dialog.ShowModal()
-        print(dialog_result)
         dialog.Destroy()
         self.update_values()
 
-    def open_member(self, event):
-        pass
+    def open_member(self, event: wx.ListEvent):
+        member_id: str = event.GetItem().GetText()
+        print("[MainUI]: Open member: {}".format(member_id))
+        dialog = MemberDialog(self, self._manager, member_id)
+        dialog_result = dialog.ShowModal()
+        if dialog_result == wx.ID_DELETE:
+            self.lst_members.DeleteItem(self.list_dict.pop(member_id, None))
+        dialog.Destroy()
+        self.update_values()
 
     def update_values(self):
         self.lbl_member_count.SetLabel(str(self._manager.get_member_count()))
@@ -110,8 +118,14 @@ class MainUI(wx.Frame):
         self.lbl_gm_count.SetLabel(str(self._manager.get_member_count_for_type(MemberType.GOLD_MEMBER)))
         self.lbl_pm_count.SetLabel(str(self._manager.get_member_count_for_type(MemberType.PLATINUM_MEMBER)))
         self.sz_1.Layout()
+
         for entry in self._manager.get_member_grid():
-            self.lst_members.FindItem()
-            index = self.lst_members.InsertItem(self.lst_members.GetItemCount(), entry[0])
+            member_id = entry[0]
+            if member_id not in self.list_dict.keys():
+                index = self.lst_members.InsertItem(self.lst_members.GetItemCount(), member_id)
+                self.list_dict[member_id] = index
+            else:
+                index = self.list_dict[member_id]
+
             for column, text in enumerate(entry[1:]):
                 self.lst_members.SetItem(index, column + 1, text)

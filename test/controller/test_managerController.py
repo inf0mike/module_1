@@ -35,7 +35,7 @@ class TestManagerController(TestCase):
     #
     def test_get_member_list(self):
         self._controller.load_members()
-        members = self._controller.get_member_list()
+        members = self._controller.get_member_id_list()
         self.assertIsInstance(members, list)
 
     #
