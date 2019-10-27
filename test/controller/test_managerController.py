@@ -6,7 +6,7 @@ from vrb.domain import *
 class TestManagerController(TestCase):
 
     def setUp(self) -> None:
-        self._controller = ManagerController()
+        self._controller = ManagerController("../file.json")
 
     def test_load_members(self):
         self.assertIsInstance(self._controller, ManagerController)
@@ -41,7 +41,7 @@ class TestManagerController(TestCase):
     #
     def test_get_member_count_for_type(self):
         self._controller.load_members()
-        result = self._controller.get_member_count_for_type("GoldMember")
+        result = self._controller.get_member_count_for_type(MemberType.GOLD_MEMBER)
         self.assertEqual(result, 1)
     #
     # def test_create_address(self):

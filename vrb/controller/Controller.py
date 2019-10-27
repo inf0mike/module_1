@@ -6,14 +6,15 @@ class ManagerController(object):
     _repository: MemberRepoImpl
     _members: dict
 
-    def __init__(self):
+    def __init__(self, data_file: str):
         super().__init__()
         self._members = {}
         self._repository = None
+        self._data_file = data_file
 
     def load_members(self):
         if self._repository is None:
-            self._repository = MemberRepoImpl("/Users/mike/file.json")
+            self._repository = MemberRepoImpl(self._data_file)
         member: Member
         for member in self._repository.read_all():
             self._members[member.id] = member
@@ -61,11 +62,13 @@ class ManagerController(object):
     def get_member_id_list(self):
         return list(self._members.keys())
 
-    def get_member_grid(self):
+    def get_member_grid(self, search_filter: str = ""):
         result = []
         for member_id in self._members.keys():
             member: Member = self._members[member_id]
-            result.append((member_id, member.first_name, member.last_name, member.__class__.__name__))
+            if search_filter.lower() in member.first_name.lower() or \
+                    search_filter.lower() in member.last_name.lower():
+                result.append((member_id, member.first_name, member.last_name, member.__class__.__name__))
         return result
 
     def get_member_count(self):

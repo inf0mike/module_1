@@ -41,9 +41,8 @@ class MemberRepoImpl(object):
 
         # Remove any existing entry
         removed_ids = self._db.remove(query.member_id == member.id)
-        if len(removed_ids) > 0:
-            print("Number of entries removed: {0}".format(len(removed_ids)))
-
+        if len(removed_ids) == 0:
+            print("Warning: no records removed")
         # Insert the new record
         self._db.insert(record)
 

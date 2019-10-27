@@ -58,9 +58,9 @@ class MainUI(wx.Frame):
         self.txt_find = wx.TextCtrl(sz_2.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
                                     wx.Size(200, -1), 0)
         sz_2.Add(self.txt_find, 0, wx.ALL, 5)
-        sz_2.Add((32, 0), 0, wx.EXPAND, 5)
-        self.btn_find = wx.Button(sz_2.GetStaticBox(), wx.ID_ANY, u"Find", wx.DefaultPosition, wx.DefaultSize, 0)
-        sz_2.Add(self.btn_find, 0, wx.ALL, 5)
+        # sz_2.Add((32, 0), 0, wx.EXPAND, 5)
+        self.btn_find_clear = wx.Button(sz_2.GetStaticBox(), wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0)
+        sz_2.Add(self.btn_find_clear, 0, wx.ALL, 5)
         sz_2.Add((32, 0), 1, wx.EXPAND, 5)
         self.btn_new_member = wx.Button(sz_2.GetStaticBox(), wx.ID_ANY, u"Add Member", wx.DefaultPosition,
                                         wx.DefaultSize, 0)
@@ -80,20 +80,24 @@ class MainUI(wx.Frame):
         self.list_dict = {}
 
         # Events
-        self.btn_find.Bind(wx.EVT_BUTTON, self.find_member)
+        self.btn_find_clear.Bind(wx.EVT_BUTTON, self.find_clear)
         self.btn_new_member.Bind(wx.EVT_BUTTON, self.add_member)
         self.lst_members.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.open_member)
+        self.txt_find.Bind(wx.EVT_TEXT, self.on_find_text)
 
         # Domain
-        self._manager = ManagerController()
+        self._manager = ManagerController("/Users/mike/file.json")
         self._manager.load_members()
         self.update_values()
 
     def __del__(self):
         pass
 
-    def find_member(self, event):
-        pass
+    def on_find_text(self, event):
+        self.update_values()
+
+    def find_clear(self, event):
+        self.txt_find.SetValue("")
 
     def add_member(self, event):
         dialog = MemberDialog(self, self._manager)
@@ -107,8 +111,8 @@ class MainUI(wx.Frame):
         print("[MainUI]: Open member: {}".format(member_id))
         dialog = MemberDialog(self, self._manager, member_id)
         dialog_result = dialog.ShowModal()
-        if dialog_result == wx.ID_DELETE:
-            self.lst_members.DeleteItem(self.list_dict.pop(member_id, None))
+        # if dialog_result == wx.ID_DELETE:
+        #     self.lst_members.DeleteItem(self.list_dict.pop(member_id, None))
         dialog.Destroy()
         self.update_values()
 
@@ -119,7 +123,10 @@ class MainUI(wx.Frame):
         self.lbl_pm_count.SetLabel(str(self._manager.get_member_count_for_type(MemberType.PLATINUM_MEMBER)))
         self.sz_1.Layout()
 
-        for entry in self._manager.get_member_grid():
+        self.lst_members.DeleteAllItems()
+        self.list_dict.clear()
+
+        for entry in self._manager.get_member_grid(self.txt_find.GetValue()):
             member_id = entry[0]
             if member_id not in self.list_dict.keys():
                 index = self.lst_members.InsertItem(self.lst_members.GetItemCount(), member_id)
