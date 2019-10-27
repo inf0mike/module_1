@@ -1,1 +1,1 @@
-from .MemberRepoImpl import MemberRepoImpl, TinyDB, Table
+from .MemberRepoImpl import MemberRepoImpl, TinyDB

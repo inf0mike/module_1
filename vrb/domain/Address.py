@@ -1,20 +1,27 @@
+# Address class is a simple data structure for a postal address
 class Address(object):
 
+    # Constructor
     def __init__(self, line1: str, line2: str, line3: str, line4: str, post_code: str):
+        # initialise private properties
         self._line1 = line1
         self._line2 = line2
         self._line3 = line3
         self._line4 = line4
         self._post_code = post_code
 
-    def __str__(self):
+    # python magic function
+    def __str__(self) -> str:
         return self.formatted_address
 
-    def __repr__(self):
+    # python magic function
+    def __repr__(self) -> str:
         return "{0}, {1}, {2}, {3}, {4}".format(
             self.line1, self.line2, self.line3, self.line4, self.post_code
         )
 
+    # getters and setters for public properties
+    
     @property
     def formatted_address(self) -> str:
         return "{0}\n{1}\n{2}\n{3}\n\n{4}".format(

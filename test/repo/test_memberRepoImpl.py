@@ -20,6 +20,9 @@ class TestMemberRepoImpl(TestCase):
         self._database.open_database()
         self._database._db.purge()
 
+    def tearDown(self) -> None:
+        self._database.close_database()
+
     @patch("vrb.repo.TinyDB", autospec=True)
     def test_open_database(self, tiny_db):
         self.assertEqual(self._database._data_path, "test.json")
