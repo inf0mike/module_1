@@ -22,12 +22,14 @@ class MemberRepoImpl(object):
 
     # python destructor.  If this object is destroyed, ensure the DB file is closed
     def __del__(self) -> None:
-        if self._db is not None:
-            self._db.close()
+        if __name__ == '__main__':
+            self.close_database()
 
     # allow user of repo to manually request closure of the DB file
     def close_database(self) -> None:
-        self._db.close()
+        if self._db is not None:
+            print("Closing database")
+            self._db.close()
 
     # user of repo can call open_database before attempting IO.
     def open_database(self) -> None:

@@ -64,17 +64,15 @@ class ManagerController(object):
         return member
 
     # Will create a member object with an address of specified level and add it to the local members dict
-    def add_member(self, first_name: str, last_name: str, date_of_birth: str, line1: str, line2: str, line3: str,
-                   line4: str, post_code: str,
-                   level=MemberType.SILVER_MEMBER) -> Member:
+    def add_member(self, first_name: str, last_name: str, date_of_birth: str, level=MemberType.SILVER_MEMBER) -> str:
         # generate the member
         member = self._generate_member(first_name, last_name, date_of_birth, level, None)
         # generate the address and add the address to the member
-        member.add_address(Address(line1, line2, line3, line4, post_code))
+        # member.add_address(Address(line1, line2, line3, line4, post_code))
         # place the new member in the members dict
         self._members[member.id] = member
         # return a reference to the new member
-        return member
+        return member.id
 
     # Delete a member.  Instruct the repository to immediately delete the member from the physical store
     def delete_member(self, member_id: str) -> None:

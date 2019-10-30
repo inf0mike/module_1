@@ -8,6 +8,6 @@ import wx
 
 if __name__ == '__main__':
     app = wx.App()
-    frame = MainUI()
+    frame = ManagerUI()
     frame.Show()
     app.MainLoop()

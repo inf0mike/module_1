@@ -7,11 +7,11 @@ from vrb.domain import MemberType
 
 # MainUI class is the parent UI element for this part of the application
 # Note: all of the GUI initialisation code is generated using a designer tool (wxFormBuilder)
-class MainUI(wx.Frame):
+class ManagerUI(wx.Frame):
 
     # Constructor
     def __init__(self):
-        super().__init__(parent=None, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
+        super().__init__(parent=None, id=wx.ID_ANY, title="Membership Manager", pos=wx.DefaultPosition,
                          size=wx.Size(721, 506), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)

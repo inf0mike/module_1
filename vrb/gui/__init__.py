@@ -1,2 +1,2 @@
-from .MainUI import MainUI
+from .ManagerUI import ManagerUI
 from .MemberDialog import MemberDialog

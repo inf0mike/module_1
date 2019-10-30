@@ -18,8 +18,8 @@ MEMBER_TYPES = {
 # MemberDialog class defines UI for editing members
 # Note: all of the GUI initialisation code is generated using a designer tool (wxFormBuilder)
 class MemberDialog(wx.Dialog):
-    _manager: ManagerController
-    _bookings: BookingController
+    _manager_controller: ManagerController
+    _booking_controller: BookingController
 
     def __init__(self, parent, manager=None, member_id=None):
         super().__init__(parent, id=wx.ID_ANY, title=wx.EmptyString, pos=wx.DefaultPosition,
@@ -207,10 +207,10 @@ class MemberDialog(wx.Dialog):
             self.txt_member_id.Show(False)
 
         # Here we generate a BookingController.  For early prototype this is a stub service
-        self._bookings = BookingController()
+        self._booking_controller = BookingController()
 
         # keep a reference to the manager controller
-        self._manager = manager
+        self._manager_controller = manager
         # update the UI now that its ready
         self._populate_form()
 
@@ -234,7 +234,7 @@ class MemberDialog(wx.Dialog):
         # Existing members must have first / last name so enable save button
         self.btn_member_save.Enable(False)
         # get the member object
-        member: Optional[Member] = self._manager.get_member(self._member_id)
+        member: Optional[Member] = self._manager_controller.get_member(self._member_id)
         # update the form fields
         self.txt_member_id.SetValue(member.id)
         self.txt_first_name.SetValue(member.first_name)
@@ -256,19 +256,19 @@ class MemberDialog(wx.Dialog):
         # update the member level choice field to reflect what the current membership level is
         self.ddl_member_type.Select(MEMBER_TYPES[member.__class__.__name__])
         # populate fee paid for this member
-        self.st_fee.SetLabel(self._bookings.get_fees_paid_for(self._member_id))
-        self.st_bookings.SetLabel(str(len(self._bookings.get_bookings_for(self._member_id))))
-        self.st_status.SetLabel(self._get_member_status(member))
+        self.st_fee.SetLabel(self._booking_controller.get_fees_paid_for(self._member_id))
+        self.st_bookings.SetLabel(str(len(self._booking_controller.get_bookings_for(self._member_id))))
+        self.st_status.SetLabel(self._calculate_status(member))
         self.st_joined.SetLabel(member.joined_date)
         self._sz_info.Layout()
 
     # determine status
-    def _get_member_status(self, member: Member) -> str:
+    def _calculate_status(self, member: Member) -> str:
         result = "Valid Membership"
         if member.__class__.__name__ == "GoldMember" and len(
-                self._bookings.get_bookings_for(self._member_id)) < member.booking_threshold:
+                self._booking_controller.get_bookings_for(self._member_id)) < member.booking_threshold:
             result = "INVALID: Not enough bookings"
-        if member.__class__.__name__ == "PlatinumMember" and int(self._bookings.get_fees_paid_for(
+        if member.__class__.__name__ == "PlatinumMember" and int(self._booking_controller.get_fees_paid_for(
                 self._member_id)) < member.membership_fee:
             result = "INVALID: Fees not paid"
         return result
@@ -280,7 +280,7 @@ class MemberDialog(wx.Dialog):
         # if they agreed...
         if result == wx.YES:
             # instruct the controller to remove this user
-            self._manager.delete_member(self._member_id)
+            self._manager_controller.delete_member(self._member_id)
             # set the return code on our own UI
             self.EndModal(wx.ID_DELETE)
         # and close ourselves
@@ -291,9 +291,12 @@ class MemberDialog(wx.Dialog):
         # update data from form data
         self._update_member_from_form()
         # instruct controller to save the members
-        self._manager.save_members()
-        # set a return value
-        self.EndModal(2)
+        self._manager_controller.save_members()
+        if self._member_id is None:
+            wx.MessageBox("Member created", "New Member", wx.OK_DEFAULT)
+            self.EndModal(5)
+        else:
+            self.EndModal(2)
         # and close ourselves
         self.Close()
 
@@ -321,11 +324,11 @@ class MemberDialog(wx.Dialog):
         # for existing members:
         if self._member_id is not None:
             # get the member object
-            member: Optional[Member] = self._manager.get_member(self._member_id)
+            member: Optional[Member] = self._manager_controller.get_member(self._member_id)
             # if the membership level is different to before
             if member.__class__.__name__ != member_level.value:
                 # then get a new membership class at the new level
-                member = self._manager.update_membership_level(self._member_id, member_level)
+                member = self._manager_controller.update_membership_level(self._member_id, member_level)
             # convert the wx.DateTime to and iso string and assign it to the member object
             member.date_of_birth = dob.FormatISODate()
             # continue to update data in the member object
@@ -340,9 +343,8 @@ class MemberDialog(wx.Dialog):
             print("[MemberDialog]: Updated: {}".format(member.id))
         else:
             # new members can be simply created by the controller
-            member: Optional[Member] = self._manager.add_member(
-                first_name, last_name, dob.FormatISODate(),
-                line1, line2, line3, line4,
-                post_code, member_level.value
+            member_id: str = self._manager_controller.add_member(
+                first_name, last_name, dob.FormatISODate(), member_level.value
             )
-            print("[MemberDialog]: Created: {}".format(member.id))
+            self._manager_controller.create_address_for_member(line1, line2, line3, line4, post_code, member_id)
+            print("[MemberDialog]: Created: {}".format(member_id))
