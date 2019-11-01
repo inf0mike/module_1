@@ -131,4 +131,4 @@ class ManagerController(object):
     def create_address_for_member(self, line1: str, line2: str, line3: str, line4: str, post_code: str,
                                   member_id: str) -> None:
         member = self.get_member(member_id)
-        member.add_address(Address(line1, line2, line3, line4, post_code))
+        member.create_address(line1, line2, line3, line4, post_code)

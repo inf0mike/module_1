@@ -35,6 +35,12 @@ class Member(object):
         else:
             self._joined_date = joined_date
 
+    # create a new address for this member
+    def create_address(self, line1: str, line2: str, line3: str, line4: str, post_code: str) -> Address:
+        new_address = Address(line1, line2, line3, line4, post_code)
+        self.add_address(new_address)
+        return new_address
+
     def add_address(self, address: Address) -> None:
         # Validate the type is an Address object and add it to the
         # Addresses for this member

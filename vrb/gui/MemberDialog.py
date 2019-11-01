@@ -281,6 +281,7 @@ class MemberDialog(wx.Dialog):
         if result == wx.YES:
             # instruct the controller to remove this user
             self._manager_controller.delete_member(self._member_id)
+            wx.MessageBox("Member deleted", "Delete Member", wx.OK_DEFAULT)
             # set the return code on our own UI
             self.EndModal(wx.ID_DELETE)
         # and close ourselves
@@ -329,6 +330,7 @@ class MemberDialog(wx.Dialog):
             if member.__class__.__name__ != member_level.value:
                 # then get a new membership class at the new level
                 member = self._manager_controller.update_membership_level(self._member_id, member_level)
+                wx.MessageBox("Membership level changed", "Membership level", wx.OK_DEFAULT)
             # convert the wx.DateTime to and iso string and assign it to the member object
             member.date_of_birth = dob.FormatISODate()
             # continue to update data in the member object

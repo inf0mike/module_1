@@ -1,5 +1,5 @@
 from vrb.domain import Member
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, storages
 import jsonpickle
 
 
@@ -13,12 +13,13 @@ class MemberRepoImpl(object):
     _db: TinyDB
 
     # Constructor
-    def __init__(self, data_path):
+    def __init__(self, data_path, memory=False):
         super().__init__()
 
         # Initialise private properties
         self._data_path = data_path
         self._db = None
+        self._memory = memory
 
     # python destructor.  If this object is destroyed, ensure the DB file is closed
     def __del__(self) -> None:
@@ -33,7 +34,10 @@ class MemberRepoImpl(object):
 
     # user of repo can call open_database before attempting IO.
     def open_database(self) -> None:
-        self._db = TinyDB(self._data_path)
+        if self._memory:
+            self._db = TinyDB(storage=storages.MemoryStorage)
+        else:
+            self._db = TinyDB(self._data_path)
         print("Data source ({0}) opened, records: {1} ".format(self._data_path, len(self._db)))
 
     # reads all serialised object data from the configured database file and re-constitutes the objects
@@ -57,6 +61,9 @@ class MemberRepoImpl(object):
     # there is an existing record, it will remove it before the new insert
     # thus negating the need for an update method
     def store_member(self, member: Member) -> None:
+        if not self._db:
+            self.open_database()
+
         query = Query()
         # build the data structure to store
         record = {
@@ -80,5 +87,7 @@ class MemberRepoImpl(object):
 
     # delete a member from the physical data store
     def delete_member(self, member: Member) -> None:
+        if not self._db:
+            self.open_database()
         query = Query()
         self._db.remove(query.member_id == member.id)

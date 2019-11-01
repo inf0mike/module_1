@@ -1,2 +1,2 @@
-from .Controller import ManagerController
+from .Controller import ManagerController, MemberRepoImpl
 from .BookingController import BookingController
